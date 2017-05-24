@@ -30,6 +30,27 @@ class Parser
     }
 
     /**
+     * Return domain name from given URL.
+     *
+     * @param $url
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function getDomainFromUrl($url)
+    {
+        $url = $this->normalizeUrl($url);
+        $domain = parse_url($url, PHP_URL_HOST);
+
+        if (is_null($domain)) {
+            throw new Exception("Given URL '$url' is invalid.".PHP_EOL);
+        }
+
+        return $domain;
+    }
+
+    /**
      * Return HTML string of given URL.
      *
      * @param $url
@@ -107,8 +128,9 @@ class Parser
             return false;
         }
 
-        $pageDOM = new DOMDocument();
-        $pageDOM->loadHTML($string);
+        $pageDOM = new DOMDocument(null, 'UTF-8');
+        libxml_use_internal_errors(true); // disable error reporting
+        $pageDOM->loadHTML(mb_convert_encoding($string, 'HTML-ENTITIES', 'UTF-8'));
 
         return $pageDOM;
     }

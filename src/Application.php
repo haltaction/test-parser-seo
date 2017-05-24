@@ -2,24 +2,31 @@
 
 namespace ParserSeo;
 
+
 class Application
 {
     protected $parser;
 
-    public function __construct($parser)
+    protected $siteAnalyzer;
+
+    public function __construct($parser, $siteAnalyzer)
     {
         $this->parser = $parser;
+        $this->siteAnalyzer = $siteAnalyzer;
     }
 
     public function parseUrl($url)
     {
-//      checkURL
-//      getHtlmFromUrl
-//      getHTML_DOM
-//		analizePage(url)
-//		analizeSitemap
+        $this->siteAnalyzer->setDomain($this->parser->getDomainFromUrl($url));
 
-        $pageDOM = $this->parser->getDomFromUrl($url);
+        do {
+            $pageDOM = $this->parser->getDomFromUrl($url);
+            $this->siteAnalyzer->analyzePage($pageDOM, $url);
+
+        } while (
+//            (!$this->siteAnalyzer->isAllPagesAnalyzed())
+        false);
+
 
         // pseudo code
 //        $allPages = [];
@@ -45,6 +52,6 @@ class Application
 //        $saver->markMissedPages($missedPages);
 
         // just for testing
-        return $htmlString;
+        return true;
     }
 }
