@@ -71,7 +71,8 @@ class Parser
         $htmlString = file_get_contents($url, false, $context);
 
         if ($htmlString === false) {
-            throw new Exception("Error getting content form url '$url'".PHP_EOL);
+//            throw new Exception("Error getting content form url '$url'".PHP_EOL);
+            return null;
         }
 
         return $htmlString;

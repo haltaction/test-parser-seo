@@ -18,14 +18,14 @@ class Application
     public function parseUrl($url)
     {
         $this->siteAnalyzer->setDomain($this->parser->getDomainFromUrl($url));
+        $this->siteAnalyzer->addPage($url);
 
         do {
-            $pageDOM = $this->parser->getDomFromUrl($url);
-            $this->siteAnalyzer->analyzePage($pageDOM, $url);
+            $currentUrl = $this->siteAnalyzer->getFirstUnparsedPage()->url;
+            $pageDOM = $this->parser->getDomFromUrl($currentUrl);
+            $this->siteAnalyzer->analyzePage($pageDOM, $currentUrl, $this->parser);
 
-        } while (
-//            (!$this->siteAnalyzer->isAllPagesAnalyzed())
-        false);
+        } while (!$this->siteAnalyzer->isAllPagesAnalyzed());
 
 
         // pseudo code

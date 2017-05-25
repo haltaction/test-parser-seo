@@ -34,11 +34,14 @@ class SiteAnalyzer
 
     /**
      * Add page to list.
+     *
      * @param $url
+     *
      * @return PageInfo
      */
     public function addPage($url)
     {
+        $url = $this->normalizeLink($url);
         $page = new PageInfo($url);
         $this->pagesList[] = $page;
 
@@ -46,12 +49,27 @@ class SiteAnalyzer
     }
 
     /**
+     * Add to page list only new URLs.
+     *
+     * @param array $urlList
+     */
+    public function addOnlyNewPages(array $urlList)
+    {
+        foreach ($urlList as $pageUrl) {
+            $this->getPage($pageUrl);
+        }
+    }
+
+    /**
      * Find page in page list by URL.
+     *
      * @param $url
+     *
      * @return PageInfo
      */
     public function getPage($url)
     {
+        $url = $this->normalizeLink($url);
         foreach ($this->pagesList as &$page) {
             if ($page->url === $url) {
                 return $page;
@@ -59,6 +77,30 @@ class SiteAnalyzer
         }
 
         return $this->addPage($url);
+    }
+
+    /**
+     * @return array
+     */
+    public function getPageList()
+    {
+        return $this->pagesList;
+    }
+
+    /**
+     * Return first page with false value of isParsed.
+     *
+     * @return mixed|null
+     */
+    public function getFirstUnparsedPage()
+    {
+        foreach ($this->pagesList as &$page) {
+            if ($page->isParsed === false) {
+                return $page;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -82,6 +124,7 @@ class SiteAnalyzer
      *
      * @param DOMDocument $pageDOM
      * @param $tagName
+     *
      * @return array|bool|null
      */
     public function getElementsByTagName(DOMDocument $pageDOM, $tagName)
@@ -110,6 +153,7 @@ class SiteAnalyzer
      * @param $tagName
      * @param $attrName
      * @param $attrValue
+     *
      * @return \DOMElement|bool|null
      */
     public function getFirstElementByTagAndAttribute(DOMDocument $pageDOM, $tagName, $attrName, $attrValue)
@@ -136,6 +180,7 @@ class SiteAnalyzer
      * Get length of text content first element in given array.
      *
      * @param array $tags
+     *
      * @return int|null
      */
     public function getFirstElementTextLength($tags)
@@ -152,6 +197,7 @@ class SiteAnalyzer
      *
      * @param $elements
      * @param bool $isExcludeSpaces
+     *
      * @return int
      */
     public function countElementsTextLength($elements, $isExcludeSpaces = false)
@@ -172,8 +218,93 @@ class SiteAnalyzer
         return strlen($text);
     }
 
+    /**
+     * Return only internal links on page.
+     *
+     * @param $elements
+     * @param $domain
+     *
+     * @return array|int
+     */
+    public function filterAllInternalLinks($elements, $domain)
+    {
+        $links = [];
+        if (empty($elements)) {
+            return $links;
+        }
+
+        foreach ($elements as $element) {
+            $href = trim($element->getAttribute('href'));
+            // todo check for duplicate, like pages with #
+            if (((substr($href, 0, 1) === '/') && (strlen($href) > 1)) || $this->checkDomainInURL($href, $domain)) {
+                $links[] = $href;
+            }
+        }
+
+        return $links;
+    }
+
+    /**
+     * Check if given URL with domain.
+     *
+     * @param $url
+     * @param $domain
+     *
+     * @return bool
+     */
+    public function checkDomainInURL($url, $domain)
+    {
+        if (empty(parse_url($url, PHP_URL_SCHEME))) {
+            $url = 'http://'.$url;
+        }
+        $result = strcasecmp(parse_url($url, PHP_URL_HOST), $domain);
+
+        return  $result == 0;
+    }
+
+    /**
+     * Lead link to common type, like http://domain.com/page.
+     *
+     * @param $url
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function normalizeLink($url)
+    {
+        if (empty($url)) {
+            throw new \Exception('URL must be not empty!');
+        }
+
+        // link like //example.com
+        if ((substr($url, 0, 2) === '//') && (strlen($url) > 3)) {
+            $url = substr($url, 2);
+        }
+        // relative link
+        if ($url[0] === '/') {
+            $url = $this->domain.$url;
+        }
+        if (empty(parse_url($url, PHP_URL_SCHEME))) {
+            $url = 'http://'.$url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * @param $pageDOM
+     * @param $url
+     */
     public function analyzePage($pageDOM, $url)
     {
+        $currentPage = $this->getPage($url);
+        if (empty($pageDOM)) {
+            $currentPage->isParsed = true;
+
+            return;
+        }
+
         $titleElements = $this->getElementsByTagName($pageDOM, 'title');
         $descriptionElement = $this->getFirstElementByTagAndAttribute($pageDOM, 'meta', 'name', 'description');
         $h1Elements = $this->getElementsByTagName($pageDOM, 'h1');
@@ -181,16 +312,17 @@ class SiteAnalyzer
         $linkElements = $this->getElementsByTagName($pageDOM, 'a');
         $paragraphElements = $this->getElementsByTagName($pageDOM, 'p');
 
-        $currentPage = $this->getPage($url);
         $currentPage->titleLength = $this->getFirstElementTextLength($titleElements);
-        $currentPage->descriptionLength = strlen($descriptionElement->textContent);
+        $currentPage->descriptionLength = (!empty($descriptionElement)) ? strlen($descriptionElement->getAttribute('content')) : 0;
         $currentPage->h1Length = $this->getFirstElementTextLength($h1Elements);
         $currentPage->imagesCount = count($imageElements);
         $currentPage->linksCount = count($linkElements);
         $currentPage->allTextSymbolsCount = $this->countElementsTextLength($paragraphElements);
         $currentPage->wordsTextSymbolsCount = $this->countElementsTextLength($paragraphElements, true);
-
+        $currentPage->domain = $this->domain;
         $currentPage->isParsed = true;
 
+        $internalLinks = $this->filterAllInternalLinks($linkElements, $this->domain);
+        $this->addOnlyNewPages($internalLinks);
     }
 }
