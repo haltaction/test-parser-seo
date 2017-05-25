@@ -2,3 +2,5 @@
 .php_cs*
 
 /vendor
+files/*
+!files/.gitkeep

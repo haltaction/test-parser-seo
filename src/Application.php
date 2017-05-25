@@ -9,15 +9,22 @@ class Application
 
     protected $siteAnalyzer;
 
-    public function __construct($parser, $siteAnalyzer)
+    protected $fileManager;
+
+    public function __construct($parser, $siteAnalyzer, $fileManager)
     {
         $this->parser = $parser;
         $this->siteAnalyzer = $siteAnalyzer;
+        $this->fileManager = $fileManager;
     }
 
     public function parseUrl($url)
     {
-        $this->siteAnalyzer->setDomain($this->parser->getDomainFromUrl($url));
+        // todo add check permission for file to save before parsing
+        $this->fileManager->checkDirPermission();
+
+        $domain = $this->parser->getDomainFromUrl($url);
+        $this->siteAnalyzer->setDomain($domain);
         $this->siteAnalyzer->addPage($url);
 
         do {
@@ -27,6 +34,8 @@ class Application
 
         } while (!$this->siteAnalyzer->isAllPagesAnalyzed());
 
+        $pagesInfoList = $this->siteAnalyzer->getPageList();
+        $this->fileManager->saveArrayOfObjectsToFile($pagesInfoList, $domain);
 
         // pseudo code
 //        $allPages = [];

@@ -235,7 +235,8 @@ class SiteAnalyzer
 
         foreach ($elements as $element) {
             $href = trim($element->getAttribute('href'));
-            // todo check for duplicate, like pages with #
+            $href = $this->normalizeLink($href);
+            // todo check for duplicate, like pages with # and ?
             if (((substr($href, 0, 1) === '/') && (strlen($href) > 1)) || $this->checkDomainInURL($href, $domain)) {
                 $links[] = $href;
             }
@@ -283,10 +284,10 @@ class SiteAnalyzer
         }
         // relative link
         if ($url[0] === '/') {
-            $url = $this->domain.$url;
+            $url = $this->domain . $url;
         }
         if (empty(parse_url($url, PHP_URL_SCHEME))) {
-            $url = 'http://'.$url;
+            $url = 'http://' . $url;
         }
 
         return $url;
@@ -305,6 +306,7 @@ class SiteAnalyzer
             return;
         }
 
+        // todo refactor it
         $titleElements = $this->getElementsByTagName($pageDOM, 'title');
         $descriptionElement = $this->getFirstElementByTagAndAttribute($pageDOM, 'meta', 'name', 'description');
         $h1Elements = $this->getElementsByTagName($pageDOM, 'h1');

@@ -17,7 +17,7 @@ class CommandWrapper
      */
     public function parse($arguments)
     {
-        $errorMessage = "Parameter 'url' is required!" . PHP_EOL;
+        $errorMessage = "Parameter 'url' is required!" ;
 
         // check param existing
         if (!isset($arguments[1])) {
@@ -27,7 +27,7 @@ class CommandWrapper
         try {
             $filename = $this->app->parseUrl($arguments[1]);
         } catch (\Exception $e) {
-            exit($e->getMessage());
+            exit("\033[31m" . $e->getMessage() . PHP_EOL . "\033[0m");
         }
 
 //        $filename = "file.csv" . PHP_EOL;

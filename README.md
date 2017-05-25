@@ -1,6 +1,13 @@
 Simple SEO parser
 ================
 
-It's my solution of test project.
+Примечания:
+- Файлы в папке 'bin' должны иметь права на запуск.
+- Папка 'files' должна иметь права на чтение и запись от имени пользователя веб сервера.
+---
+- Не реализована проверка на дубли страниц, страницы с разными хэшами и get-параметрами определяются как разные.
+- Не реализована корректная обработка ошибок парсинга, отсутствующих тэгов.
 
-Files in 'bin' directory must have rights for execute.
+<!--It's my solution of test project.
+
+Files in 'bin' directory must have rights for execute. -->
