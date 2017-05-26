@@ -2,7 +2,6 @@
 
 namespace ParserSeo;
 
-
 use Exception;
 
 class FileManager
@@ -13,11 +12,12 @@ class FileManager
      * Return full file name for domain.
      *
      * @param $domain
+     *
      * @return string
      */
     public function getFileName($domain)
     {
-        $filePath = __DIR__ . '/../' . self::FILE_DIR . $domain . '.csv';
+        $filePath = __DIR__.'/../'.self::FILE_DIR.$domain.'.csv';
 
         return $filePath;
     }
@@ -33,7 +33,7 @@ class FileManager
 
         $file = fopen($filename, 'w+');
         if ($file === false) {
-            throw new Exception("Directory " . dirname($filename) . " haven't permission for read and write.");
+            throw new Exception('Directory '.dirname($filename)." haven't permission for read and write.");
         }
         fclose($file);
         unlink($filename);
@@ -44,11 +44,12 @@ class FileManager
      *
      * @param array $arrayOfObjects
      * @param $domain
+     *
      * @return bool|string
      */
     public function saveArrayOfObjectsToFile(array $arrayOfObjects, $domain)
     {
-        if (empty($domain) ||empty($arrayOfObjects)) {
+        if (empty($domain) || empty($arrayOfObjects)) {
             return false;
         }
 
@@ -69,5 +70,6 @@ class FileManager
     }
 
     public function findFileByDomain($domain)
-    {}
+    {
+    }
 }

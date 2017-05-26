@@ -2,7 +2,6 @@
 
 namespace ParserSeo;
 
-
 class Application
 {
     protected $parser;
@@ -20,7 +19,6 @@ class Application
 
     public function parseUrl($url)
     {
-        // todo add check permission for file to save before parsing
         $this->fileManager->checkDirPermission();
 
         $domain = $this->parser->getDomainFromUrl($url);
@@ -31,11 +29,10 @@ class Application
             $currentUrl = $this->siteAnalyzer->getFirstUnparsedPage()->url;
             $pageDOM = $this->parser->getDomFromUrl($currentUrl);
             $this->siteAnalyzer->analyzePage($pageDOM, $currentUrl, $this->parser);
-
         } while (!$this->siteAnalyzer->isAllPagesAnalyzed());
 
         $pagesInfoList = $this->siteAnalyzer->getPageList();
-        $this->fileManager->saveArrayOfObjectsToFile($pagesInfoList, $domain);
+        $filePath = $this->fileManager->saveArrayOfObjectsToFile($pagesInfoList, $domain);
 
         // pseudo code
 //        $allPages = [];
@@ -60,7 +57,6 @@ class Application
 //        $missedPages = $sitemapUrls = $sitemapAnalizer->analize($domain, $allPagesInfo);
 //        $saver->markMissedPages($missedPages);
 
-        // just for testing
-        return true;
+        return $filePath;
     }
 }

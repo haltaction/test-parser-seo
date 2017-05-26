@@ -284,10 +284,10 @@ class SiteAnalyzer
         }
         // relative link
         if ($url[0] === '/') {
-            $url = $this->domain . $url;
+            $url = $this->domain.$url;
         }
         if (empty(parse_url($url, PHP_URL_SCHEME))) {
-            $url = 'http://' . $url;
+            $url = 'http://'.$url;
         }
 
         return $url;
