@@ -41,8 +41,20 @@ class CommandWrapper
         exit('Result file - '.$filename.PHP_EOL);
     }
 
-    public function report($domain)
+    public function report($arguments)
     {
+        $errorMessage = "Parameter 'domain' is required!";
+        if (!isset($arguments[1])) {
+            exit($this->formatOutputString($errorMessage, 31));
+        }
+
+        try {
+            $report = $this->app->reportByDomain($arguments[1]);
+        } catch (\Exception $e) {
+            exit($this->formatOutputString($e->getMessage(), 31));
+        }
+
+        exit($report.PHP_EOL);
     }
 
     public function help()

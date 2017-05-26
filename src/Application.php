@@ -20,6 +20,13 @@ class Application
         $this->sitemapAnalyzer = $sitemapAnalyzer;
     }
 
+    /**
+     * Parsing information about URL, save it in file and return file path.
+     *
+     * @param $url
+     *
+     * @return string
+     */
     public function parseUrl($url)
     {
         $this->fileManager->checkDirPermission();
@@ -40,5 +47,29 @@ class Application
         $filePath = $this->fileManager->saveArrayOfObjectsToFile($pagesInfoList, $domain);
 
         return $filePath;
+    }
+
+    /**
+     * Return report by domain.
+     *
+     * @param $domain
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function reportByDomain($domain)
+    {
+        $errorMessage = "Report for domain '".$domain."' not found. Please, run 'parse' command first.";
+        $reportMessage = "Report for domain '".$domain."' contain in file ";
+
+        $domain = $this->parser->getDomainFromUrl($domain);
+        $reportFile = $this->fileManager->findFileByDomain($domain);
+
+        if ($reportFile === false) {
+            throw new \Exception($errorMessage);
+        }
+
+        return $reportMessage.$reportFile;
     }
 }

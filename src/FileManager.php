@@ -69,7 +69,20 @@ class FileManager
         return $filePath;
     }
 
+    /**
+     * Check if exists file report for domain and return file path or false.
+     *
+     * @param $domain
+     *
+     * @return bool|string
+     */
     public function findFileByDomain($domain)
     {
+        $filename = $this->getFileName($domain);
+        if (file_exists($filename)) {
+            return $filename;
+        }
+
+        return false;
     }
 }
