@@ -235,6 +235,9 @@ class SiteAnalyzer
 
         foreach ($elements as $element) {
             $href = trim($element->getAttribute('href'));
+            if (empty($href)) {
+                continue;
+            }
             $href = $this->normalizeLink($href);
             // todo check for duplicate, like pages with # and ?
             if (((substr($href, 0, 1) === '/') && (strlen($href) > 1)) || $this->checkDomainInURL($href, $domain)) {
@@ -326,5 +329,20 @@ class SiteAnalyzer
 
         $internalLinks = $this->filterAllInternalLinks($linkElements, $this->domain);
         $this->addOnlyNewPages($internalLinks);
+    }
+
+    /**
+     * Check all pages, wich is in sitemap list.
+     *
+     * @param array $sitemapLinks
+     */
+    public function comparePagesWithSitemapLinks(array $sitemapLinks)
+    {
+        foreach ($this->pagesList as &$page) {
+            $searchResult = array_search($page->url, $sitemapLinks);
+            if ($searchResult !== false) {
+                $page->isInSitemap = true;
+            }
+        }
     }
 }

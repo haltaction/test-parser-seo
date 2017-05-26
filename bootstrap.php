@@ -9,6 +9,16 @@ use ParserSeo\Application;
 use ParserSeo\FileManager;
 use ParserSeo\Parser;
 use ParserSeo\SiteAnalyzer;
+use ParserSeo\SitemapAnalyzer;
 
-$app = new Application(new Parser(), new SiteAnalyzer(), new FileManager());
+$parser = new Parser();
+$siteAnalyzer = new SiteAnalyzer();
+$fileManager = new FileManager();
+$sitemapAnalyzer = new SitemapAnalyzer($parser);
+$app = new Application(
+    $parser,
+    $siteAnalyzer,
+    $fileManager,
+    $sitemapAnalyzer
+);
 $commands = new CommandWrapper($app);
