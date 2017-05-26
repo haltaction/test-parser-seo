@@ -41,6 +41,11 @@ class CommandWrapper
         exit('Result file - '.$filename.PHP_EOL);
     }
 
+    /**
+     * Check if exists report file by domain.
+     *
+     * @param $arguments
+     */
     public function report($arguments)
     {
         $errorMessage = "Parameter 'domain' is required!";
@@ -57,7 +62,22 @@ class CommandWrapper
         exit($report.PHP_EOL);
     }
 
+    /**
+     * Display help.
+     */
     public function help()
     {
+        $helpString = "
+Commands:
+
+ 'parse site.com' - start parsing given url, find and parse all internal link on pages. Also parsing 'sitemap.xml' and   compare parsed links with sitemap links. Save result in .csv file and print path to it file.
+ 
+ 'report site.com' - search report file by given domain. Return path to result .csv file.
+ 
+ 'help' - display this text.
+";
+
+
+        exit($helpString.PHP_EOL);
     }
 }
